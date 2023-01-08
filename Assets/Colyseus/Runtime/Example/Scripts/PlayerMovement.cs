@@ -3,23 +3,60 @@ using TMPro;
 
 public class PlayerMovement : MonoBehaviour
 {
-	public float speed = 10f;
-	public TextMeshPro textName;
-	public string sectionID;
-	public AiMovment ai;
+	[SerializeField] private float speed = 10f;
+	[SerializeField] private TextMeshPro textName;
+	[SerializeField] private TextMeshProUGUI textGuiName;
+	[SerializeField] private string playerID;
+	[SerializeField] private AiMovment ai;
 
 	private bool _moving;
 	private NetworkManager _networkManager;
 	private Vector2 _targetPosition;
 
-	public bool IsLocalPlayer => _networkManager.GameRoom == null ? false : _networkManager.GameRoom.SessionId == sectionID;
-	public bool IsOwner(string sectionID) => sectionID == this.sectionID;
+	public bool IsLocalPlayer => (_networkManager == null ||_networkManager.GameRoom == null) ? false : _networkManager.GameRoom.SessionId == PlayerID;
+	public bool IsOwner(string sectionID) => sectionID == PlayerID;
 
-	private void Start()
+	public string PlayerID
+	{
+		get
+		{
+			return playerID;
+		}
+		set
+		{
+			playerID = value;
+			SetName(value);
+		}
+	}
+
+	private void SetName(string value)
+	{
+		if (textName != null)
+		{
+			textName.text = value;
+			if (IsLocalPlayer)
+			{
+				textName.color = Color.red;
+			}
+		}
+
+		if (textGuiName != null)
+		{
+			textGuiName.text = value;
+			if (IsLocalPlayer)
+			{
+				textGuiName.color = Color.red;
+			}
+		}
+	}
+
+	private void Awake()
 	{
 		_networkManager = FindObjectOfType<NetworkManager>();
-		NetworkManager.OnPositionChanged += NetworkManager_OnPositionChanged;
+	}
 
+	private void OnEnable()
+	{
 		RegisterEvents();
 	}
 
@@ -30,6 +67,7 @@ public class PlayerMovement : MonoBehaviour
 
 	private void RegisterEvents()
 	{
+		NetworkManager.OnPositionChanged += NetworkManager_OnPositionChanged;
 		if (ai != null)
 		{
 			ai.OnAiPosition.AddListener(OnAiPosition);
@@ -38,6 +76,7 @@ public class PlayerMovement : MonoBehaviour
 
 	private void UnregisterEvents()
 	{
+		NetworkManager.OnPositionChanged -= NetworkManager_OnPositionChanged;
 		if (ai != null)
 		{
 			ai.OnAiPosition.RemoveListener(OnAiPosition);

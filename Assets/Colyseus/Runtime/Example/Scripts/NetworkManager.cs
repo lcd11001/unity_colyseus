@@ -14,6 +14,7 @@ public class NetworkManager : MonoBehaviour
 	public static event Action<string, Player> OnPositionChanged;
 
 	public GameObject playerPrefab;
+	public RectTransform canvas;
 
 	private async void Start()
 	{
@@ -120,18 +121,11 @@ public class NetworkManager : MonoBehaviour
 
 	public GameObject CreatePlayer(string sectionId)
 	{
-		bool isMe = sectionId == _room.SessionId;
-
-		var player = Instantiate(playerPrefab);
+		var player = Instantiate(playerPrefab, canvas);
 		player.name = sectionId;
 
 		var playerMovement = player.GetComponent<PlayerMovement>();
-		playerMovement.textName.text = sectionId;
-		if (isMe)
-		{
-			playerMovement.textName.color = Color.red;
-		}
-		playerMovement.sectionID = sectionId;
+		playerMovement.PlayerID = sectionId;
 
 		return player;
 	}
