@@ -2,6 +2,29 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
+#User Specific
+*.userprefs
+*.usertasks
+.DS_Store
+.vs/
+
+#Mono Project Files
+*.pidb
+*.resources
+test-results/
+bin
+obj
+
+#NuGet packages
+Colyseus/packages
+!packages/repositories.config
+
+# Node.js
+node_modules
+npm-debug.log
+package-lock.json
+
+# Unity
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -57,4 +80,5 @@ sysinfo.txt
 
 # Crashlytics generated file
 crashlytics-build.properties
-
+# Logs
+/Logs/
