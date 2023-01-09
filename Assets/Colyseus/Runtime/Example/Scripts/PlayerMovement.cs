@@ -100,7 +100,7 @@ public class PlayerMovement : MonoBehaviour
 		//Debug.Log($"network {sectionId} vs my {this.sectionID}");
 		if (IsOwner(sectionId))
 		{
-			TargetPosition = Camera.main.ScreenToWorldPoint( new Vector3(player.x, player.y, player.z));
+			TargetPosition = Camera.main.ScreenToWorldPoint( new Vector2(player.x, player.y));
 		}
 	}
 

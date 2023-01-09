@@ -3,8 +3,7 @@ import { MyRoomState, Player } from "./schema/MyRoomState";
 
 export type Position = {
   x: number,
-  y: number,
-  z: number
+  y: number
 }
 
 export class MyRoom extends Room<MyRoomState> {
@@ -29,7 +28,6 @@ export class MyRoom extends Room<MyRoomState> {
       const player = this.state.players.get(client.sessionId);
       player.x = position.x;
       player.y = position.y;
-      player.z = position.z;
       
       this.broadcast(player);
     });

@@ -16,8 +16,5 @@ public partial class Player : Schema {
 
 	[Type(2, "number")]
 	public float y = default(float);
-
-	[Type(3, "number")]
-	public float z = default(float);
 }
 
