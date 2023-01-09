@@ -25,8 +25,8 @@ public class AiMovment : MonoBehaviour
 			{
 				float x = Random.Range(movingZone.Left, movingZone.Right);
 				float y = Random.Range(movingZone.Bottom, movingZone.Top);
-				Vector2 nextPosition = new Vector2(x, y);
-				OnAiPosition?.Invoke(nextPosition);
+				Vector2 screenPosition = new Vector2(x, y);
+				OnAiPosition?.Invoke(screenPosition);
 			}
 
 			remainingTime = scheduleTime;

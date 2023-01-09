@@ -53,6 +53,10 @@ public class PlayerMovement : MonoBehaviour
 	private void Awake()
 	{
 		_networkManager = FindObjectOfType<NetworkManager>();
+		if (ai != null)
+		{
+			ai.enabled = false;
+		}
 	}
 
 	private void OnEnable()
@@ -83,11 +87,11 @@ public class PlayerMovement : MonoBehaviour
 		}
 	}
 
-	private void OnAiPosition(Vector2 nextPosition)
+	private void OnAiPosition(Vector2 screenPosition)
 	{
 		if (IsLocalPlayer)
 		{
-			_networkManager.PlayerPosition(Camera.main.ScreenToWorldPoint(nextPosition));
+			_networkManager.PlayerPosition(screenPosition);
 		}
 	}
 
@@ -96,7 +100,7 @@ public class PlayerMovement : MonoBehaviour
 		//Debug.Log($"network {sectionId} vs my {this.sectionID}");
 		if (IsOwner(sectionId))
 		{
-			TargetPosition = new Vector2(player.x, player.y);
+			TargetPosition = Camera.main.ScreenToWorldPoint( new Vector3(player.x, player.y, player.z));
 		}
 	}
 
@@ -159,10 +163,18 @@ public class PlayerMovement : MonoBehaviour
 
 	private void Update()
 	{
-		if (IsLocalPlayer && Input.GetMouseButtonDown(0))
+		if (IsLocalPlayer)
 		{
-			// Synchronize mouse click position with the Colyseus server.
-			_networkManager.PlayerPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+			if (Input.GetKeyDown(KeyCode.Space))
+			{
+				ai.enabled = !ai.enabled;
+				Debug.Log(ai.enabled ? "Enable AI" : "Disable AI");
+			}
+			if (Input.GetMouseButtonDown(0))
+			{
+				// Synchronize mouse click position with the Colyseus server.
+				_networkManager.PlayerPosition(Input.mousePosition);
+			}
 		}
 
 		if (_moving && (Vector2)transform.position != _targetPosition)

@@ -24,7 +24,7 @@ public class NetworkManager : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		_room.Leave(true);
+		_room?.Leave(true);
 		UnregisterEvents();
 	}
 
@@ -114,9 +114,9 @@ public class NetworkManager : MonoBehaviour
 		}
 	}
 
-	public void PlayerPosition(Vector2 position)
+	public void PlayerPosition(Vector3 screenPosition)
 	{
-		GameRoom.Send("position", new { x = position.x, y = position.y });
+		GameRoom.Send("position", screenPosition);
 	}
 
 	public GameObject CreatePlayer(string sectionId)
