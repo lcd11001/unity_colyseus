@@ -10,6 +10,12 @@ export default Arena({
     getId: () => "Your Colyseus App",
 
     initializeGameServer: (gameServer) => {
+        // Make sure to never call the `simulateLatency()` method in production.
+        if (process.env.NODE_ENV !== "production") {
+            console.log(`*********** Simulate Latency ${process.env.LATENCY} **************`);
+            // simulate 200ms latency between server and client.
+            gameServer.simulateLatency(Number.parseInt(process.env.LATENCY));
+        }
         /**
          * Define your room handlers:
          */

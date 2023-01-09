@@ -93,8 +93,8 @@ public class PlayerMovement : MonoBehaviour
 	{
 		if (IsLocalPlayer)
 		{
-			//_networkManager.PlayerPosition(screenPosition);
-			_networkManager.PlayerScreenPosition(screenPosition);
+			_networkManager.PlayerPosition(screenPosition);
+			//_networkManager.PlayerScreenPosition(screenPosition);
 		}
 	}
 
@@ -103,9 +103,9 @@ public class PlayerMovement : MonoBehaviour
 		//Debug.Log($"network {sectionId} vs my {this.sectionID}");
 		if (IsOwner(sectionId))
 		{
-			//TargetPosition = Camera.main.ScreenToWorldPoint(new Vector2(player.x, player.y));
-			Vector2 localPoint = new Vector2(player.x, player.y);
-			TargetPosition = localPoint;
+			TargetPosition = Camera.main.ScreenToWorldPoint(new Vector2(player.x, player.y));
+			//Vector2 localPoint = new Vector2(player.x, player.y);
+			//TargetPosition = localPoint;
 		}
 	}
 
@@ -178,23 +178,24 @@ public class PlayerMovement : MonoBehaviour
 			if (Input.GetMouseButtonDown(0))
 			{
 				// Synchronize mouse click position with the Colyseus server.
-				//_networkManager.PlayerPosition(Input.mousePosition);
-				_networkManager.PlayerScreenPosition(Input.mousePosition);
+				_networkManager.PlayerPosition(Input.mousePosition);
+				//_networkManager.PlayerScreenPosition(Input.mousePosition);
 			}
 		}
 
-		/*
+		
 		if (_moving && (Vector2)transform.position != _targetPosition)
 		{
 			var step = speed * Time.deltaTime;
 			transform.position = Vector2.MoveTowards(transform.position, _targetPosition, step);
 		}
-		*/
+		/*
 		if (_moving && _rt != null && _rt.anchoredPosition != _targetPosition)
 		{
 			var step = 100 * speed * Time.deltaTime;
 			_rt.anchoredPosition = Vector2.MoveTowards(_rt.anchoredPosition, _targetPosition, step);
 		}
+		*/
 		else
 		{
 			_moving = false;
