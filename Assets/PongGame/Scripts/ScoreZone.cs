@@ -8,6 +8,8 @@ public class ScoreZone : MonoBehaviour
 	[SerializeField] private TextMeshProUGUI txtName;
 	[SerializeField] private TextMeshProUGUI txtScore;
 
+	[SerializeField] private GameObject gameOverScreen;
+
 	private int score;
 
 	private void Start()
@@ -18,7 +20,19 @@ public class ScoreZone : MonoBehaviour
 
 	private void OnCollisionEnter(Collision collision)
 	{
-		score++;
-		txtScore.text = score.ToString();
+		var ball = collision.gameObject.GetComponent<BallController>();
+		if (ball != null)
+		{
+			score++;
+			txtScore.text = score.ToString();
+
+			ball.ResetBall();
+
+			if (score >= 7)
+			{
+				ball.gameObject.SetActive(false);
+				gameOverScreen.SetActive(true);
+			}
+		}
 	}
 }

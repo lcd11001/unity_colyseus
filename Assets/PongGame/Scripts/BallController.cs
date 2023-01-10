@@ -5,10 +5,22 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class BallController : MonoBehaviour
 {
-	[SerializeField] private int thrust = 100;
+	[SerializeField] private float thrust = 100f;
+
+	Rigidbody rb;
 
 	private void Start()
 	{
-		GetComponent<Rigidbody>().AddForce(new Vector3(3, 0, 15) * thrust, ForceMode.Force);
+		rb = GetComponent<Rigidbody>();
+		ResetBall();
 	}
+
+	public void ResetBall()
+	{
+		transform.position = Vector3.zero;
+		rb.velocity = Vector3.zero;
+		rb.AddForce(new Vector3(3 * RandomDirection, 0, 15 * RandomDirection) * thrust, ForceMode.Force);
+	}
+
+	private int RandomDirection => Random.Range(0, 2) * 2 - 1;
 }
