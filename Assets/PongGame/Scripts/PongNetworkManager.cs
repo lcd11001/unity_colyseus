@@ -25,9 +25,9 @@ public class PongNetworkManager : MonoBehaviour
 		RegisterEvents();
 	}
 
-	private void OnDestroy()
+	private async void OnDestroy()
 	{
-		_room?.Leave(true);
+		await _room?.Leave(true);
 		UnregisterEvents();
 	}
 

@@ -6,11 +6,11 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PaddleController : MonoBehaviour
 {
-	[SerializeField] float moveSpeed = 10f;
-	[SerializeField] float limitX = 6.9f;
-	[SerializeField] float touchControlDistance = 5f;
-	private Rigidbody rb;
-	private float distanceToCamera;
+	[SerializeField] protected float moveSpeed = 10f;
+	[SerializeField] protected float limitX = 6.9f;
+	[SerializeField] protected float touchControlDistance = 5f;
+	protected Rigidbody rb;
+	protected float distanceToCamera;
 
 	private void Start()
 	{
@@ -23,7 +23,7 @@ public class PaddleController : MonoBehaviour
 		Movement();
 	}
 
-	private void Movement()
+	protected virtual void Movement()
 	{
 		Vector3 myPosition = rb.position;
 

@@ -27,7 +27,7 @@ export class MyPong extends Room<MyPongState> {
             const player = this.state.players.get(client.sessionId);
             player.pos = position.pos;
 
-            this.broadcast(player);
+            this.broadcast(player, {except: client});
         });
 
         this.onMessage("pong_ball_position", (client, position: PongBallPosition) => {
