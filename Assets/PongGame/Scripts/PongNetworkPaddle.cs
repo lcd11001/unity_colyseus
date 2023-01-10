@@ -13,7 +13,10 @@ public class PongNetworkPaddle : PaddleController
 	private float timeSyncPosition = 0;
 
 	private bool isSyncPosition = false;
-	private float targetSyncPotision = 0;
+	private float targetSyncPosition = 0;
+	private float targetSyncSpeed = 0;
+	private Queue<PongSyncPosition> queueSyncPosition = new Queue<PongSyncPosition>();
+	private float timeEnqueue = 0;
 
 	public string PlayerID
 	{
@@ -62,13 +65,18 @@ public class PongNetworkPaddle : PaddleController
 		if (IsOwner(id))
 		{
 			isSyncPosition = true;
-			targetSyncPotision = -player.pos;
+			queueSyncPosition.Enqueue(new PongSyncPosition { pos = -player.pos, time = Time.time - timeEnqueue });
+
+			timeEnqueue = Time.time;
 		}
 	}
 
 	public void InitPosition(Vector3 myPosition, Vector3 opponentPosition)
 	{
 		transform.position = IsLocalPlayer ? myPosition : opponentPosition;
+
+		targetSyncPosition = transform.position.x;
+
 		MeshRenderer mr = gameObject.GetComponent<MeshRenderer>();
 		if (mr != null)
 		{
@@ -80,16 +88,45 @@ public class PongNetworkPaddle : PaddleController
 	{
 		if (!IsLocalPlayer)
 		{
+			/*
 			if (isSyncPosition
-				&& this.transform.position.x != targetSyncPotision
+				&& this.transform.position.x != targetSyncPosition
 				//&& rb.position.x != targetSyncPotision
 			)
 			{
-				this.SyncPosition(targetSyncPotision);
+				this.SyncPosition(targetSyncPosition);
 			}
 			else
 			{
 				isSyncPosition = false;
+			}
+			*/
+
+			if (isSyncPosition)
+			{
+				if (transform.position.x != targetSyncPosition)
+				{
+					SyncPosition(targetSyncPosition, targetSyncSpeed);
+				}
+				else
+				{
+					if (queueSyncPosition.Count > 0)
+					{
+						var item = queueSyncPosition.Dequeue();
+						var remainTime = 2 * timeIntervalSyncPosition - item.time;
+						if (remainTime > 0)
+						{
+							targetSyncPosition = item.pos;
+							targetSyncSpeed = Mathf.Abs(targetSyncPosition - transform.position.x) / remainTime;
+						}
+						//Debug.Log($"item pos {item.pos} time {item.time} remain {remainTime} speed {targetSyncSpeed}");
+						isSyncPosition = true;
+					}
+					else
+					{
+						isSyncPosition = false;
+					}
+				}
 			}
 			return;
 		}
@@ -105,12 +142,19 @@ public class PongNetworkPaddle : PaddleController
 		}
 	}
 
-	private void SyncPosition(float targetSyncPotision)
+	private void SyncPosition(float targetPosition, float targetSpeed)
 	{
 		//MoveTo(targetSyncPotision);
 
-		var step = (moveSpeed + timeIntervalSyncPosition) * Time.deltaTime;
-		Vector3 target = new Vector3(targetSyncPotision, transform.position.y, transform.position.z);
+		var step = targetSpeed * Time.deltaTime;
+		Vector3 target = new Vector3(targetPosition, transform.position.y, transform.position.z);
 		transform.position = Vector3.MoveTowards(transform.position, target, step);
 	}
+}
+
+
+public class PongSyncPosition
+{
+	public float pos;
+	public float time;
 }
