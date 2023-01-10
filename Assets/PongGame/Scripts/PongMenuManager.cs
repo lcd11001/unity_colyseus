@@ -37,6 +37,6 @@ public class PongMenuManager : MonoBehaviour
 
     public void Play()
     {
-        SceneManager.LoadScene("PongGame", LoadSceneMode.Single);
+        SceneManager.LoadScene("PongMultiPlayer", LoadSceneMode.Single);
     }
 }
