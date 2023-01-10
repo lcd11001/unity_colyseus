@@ -65,6 +65,14 @@ public class PongNetworkManager : MonoBehaviour
 		{
 			OnPositionChanged?.Invoke(player.id, player);
 		});
+		_room.OnMessage("pong_start_game", (string roomId) =>
+		{
+			CreateBall(roomId);
+		});
+		_room.OnMessage("pong_stop_game", (string roomId) =>
+		{
+			DeleteBall(roomId);
+		});
 	}
 
 	private void Room_OnLeave(int code)
@@ -144,4 +152,26 @@ public class PongNetworkManager : MonoBehaviour
 		Debug.LogError($"can not destroy player {sectionId}");
 		return false;
 	}
+
+	private GameObject CreateBall(string roomId)
+	{
+		var ball = Instantiate(ballPrefab);
+		ball.name = roomId;
+		return ball;
+	}
+
+	private bool DeleteBall(string roomId)
+	{
+		// Fix: sometime, ball is inactive
+		var ball = GameObject.FindObjectOfType<BallController>(true);
+		if (ball != null && ball.gameObject.name == roomId)
+		{
+			Destroy(ball.gameObject);
+			return true;
+		}
+		Debug.LogError($"can not destroy ball {roomId}");
+		return false;
+	}
+
+	
 }

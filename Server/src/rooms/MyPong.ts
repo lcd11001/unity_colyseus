@@ -42,13 +42,13 @@ export class MyPong extends Room<MyPongState> {
         {
             this.state.ball.x = 0;
             this.state.ball.y = 0;
-            this.broadcast("pong_start_game");
+            this.broadcast("pong_start_game", this.roomId);
         }
     }
 
     onLeave(client: Client, consented: boolean) {
         this.state.players.delete(client.sessionId);
-        this.broadcast("pong_stop_game");
+        this.broadcast("pong_stop_game", this.roomId);
         console.log(client.sessionId, "left!", "consented", consented);
     }
 
