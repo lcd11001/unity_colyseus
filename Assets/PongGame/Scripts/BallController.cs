@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class BallController : MonoBehaviour
 {
-	[SerializeField] private int thrust;
+	[SerializeField] private int thrust = 100;
 
 	private void Start()
 	{
