@@ -11,7 +11,8 @@
     "clean": "node node_modules/rimraf/bin lib",
     "test": "mocha --require ts-node/register test/**_test.ts --exit --timeout 15000",
     "codegen-not-working": "schema-codegen src/rooms/schema/* --csharp --output ../Assets/Colyseus/Runtime/Example/Scripts/Schema/",
-    "codegen": "schema-codegen src/rooms/schema/MyRoomState.ts --csharp --output ../Assets/Colyseus/Runtime/Example/Scripts/Schema/"
+    "codegen": "schema-codegen src/rooms/schema/MyRoomState.ts --csharp --output ../Assets/Colyseus/Runtime/Example/Scripts/Schema/",
+    "codegen-pong": "schema-codegen src/rooms/schema/MyPongState.ts --csharp --output ../Assets/PongGame/Scripts/Schema/"
   },
   "author": "",
   "license": "UNLICENSED",

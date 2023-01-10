@@ -1,5 +1,6 @@
 import Arena from "@colyseus/arena";
 import { monitor } from "@colyseus/monitor";
+import { MyPong } from "./rooms/MyPong";
 
 /**
  * Import your Room files
@@ -20,7 +21,7 @@ export default Arena({
          * Define your room handlers:
          */
         gameServer.define('my_room', MyRoom);
-
+        gameServer.define('pong_room', MyPong);
     },
 
     initializeExpress: (app) => {
