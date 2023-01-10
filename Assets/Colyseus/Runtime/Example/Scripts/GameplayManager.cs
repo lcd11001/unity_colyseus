@@ -11,13 +11,19 @@ public class GameplayManager : MonoBehaviour
 	}
 	public void BackToMenu()
     {
-		networkManager.GameRoom.Leave(true);
+		if (networkManager.GameRoom != null)
+		{
+			networkManager.GameRoom.Leave(true);
+		}
         SceneManager.LoadScene("Menu", LoadSceneMode.Single);
     }
 
     public void Exit()
     {
-		networkManager.GameRoom.Leave(true);
-        Application.Quit();
+		if (networkManager.GameRoom != null)
+		{
+			networkManager.GameRoom.Leave(true);
+		}
+		Application.Quit();
     }
 }

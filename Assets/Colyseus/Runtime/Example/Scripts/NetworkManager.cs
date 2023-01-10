@@ -114,17 +114,9 @@ public class NetworkManager : MonoBehaviour
 		}
 	}
 
-	public void PlayerPosition(Vector3 screenPosition)
+	public void PlayerPosition(Vector3 position)
 	{
-		GameRoom.Send("position", screenPosition);
-	}
-
-	public void PlayerScreenPosition(Vector2 screenPosition)
-	{
-		// https://forum.unity.com/threads/get-real-screen-position-for-a-canvas-ui-element.449455/
-		Vector2 localPoint;
-		RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas, screenPosition, Camera.main, out localPoint);
-		GameRoom.Send("position", localPoint);
+		GameRoom.Send("position", position);
 	}
 
 	public GameObject CreatePlayer(string sectionId)

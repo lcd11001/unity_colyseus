@@ -37,16 +37,16 @@ public class MovingZone : MonoBehaviour
 		}
 		rt.GetWorldCorners(worldCorners);
 
-		Debug.Log("Corners");
+		//Debug.Log("Corners");
 		for (int i=0; i<4; i++)
 		{
 			if (Camera.main == null)
 			{
-				Debug.Log("Camera is null");
+				//Debug.Log("Camera is null");
 				break;
 			}
 			screenCorners[i] = Camera.main.WorldToScreenPoint(worldCorners[i]);
-			Debug.Log($" {(CORNER)i} : world {worldCorners[i]} => screen {screenCorners[i]}");
+			//Debug.Log($" {(CORNER)i} : world {worldCorners[i]} => screen {screenCorners[i]}");
 		}
 	}
 
