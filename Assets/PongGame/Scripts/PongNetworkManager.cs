@@ -15,6 +15,9 @@ public class PongNetworkManager : MonoBehaviour
 
 	public GameObject playerPrefab;
 	public GameObject ballPrefab;
+	public Transform spawnPlayerPosition;
+	public Transform spawnOpponentPosition;
+	public Transform spawnBallPosition;
 
 	private async void Start()
 	{
@@ -122,6 +125,10 @@ public class PongNetworkManager : MonoBehaviour
 	{
 		var player = Instantiate(playerPrefab);
 		player.name = sectionId;
+
+		PongNetworkPaddle paddle = player.GetComponent<PongNetworkPaddle>();
+		paddle.PlayerID = sectionId;
+		paddle.InitPosition(spawnPlayerPosition.position, spawnOpponentPosition.position);
 
 		return player;
 	}

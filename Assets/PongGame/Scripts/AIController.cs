@@ -22,7 +22,10 @@ public class AIController : MonoBehaviour
 		time += Time.deltaTime;
 		if (time > timeInterval)
 		{
-			targetPositionX = ball.transform.position.x;
+			if (ball != null)
+			{
+				targetPositionX = ball.transform.position.x;
+			}
 			time = 0;
 		}
 
