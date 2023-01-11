@@ -12,13 +12,13 @@ public class PaddleController : MonoBehaviour
 	protected Rigidbody rb;
 	protected float distanceToCamera;
 
-	private void Start()
+	protected virtual void Start()
 	{
 		rb = GetComponent<Rigidbody>();
 		distanceToCamera = Vector3.Distance(transform.position, Camera.main.transform.position);
 	}
 
-	private void Update()
+	protected virtual void Update()
 	{
 		Movement();
 	}

@@ -39,6 +39,12 @@ public class PongNetworkPaddle : PaddleController
 		_networkManager = FindObjectOfType<PongNetworkManager>();
 	}
 
+	protected override void Start()
+	{
+		base.Start();
+		timeEnqueue = Time.unscaledTime;
+	}
+
 	private void OnEnable()
 	{
 		RegisterEvents();
@@ -64,10 +70,25 @@ public class PongNetworkPaddle : PaddleController
 		//Debug.Log($"OnPositionChanged {id} pos {player.pos}");
 		if (IsOwner(id))
 		{
-			isSyncPosition = true;
-			queueSyncPosition.Enqueue(new PongSyncPosition { pos = -player.pos, time = Time.time - timeEnqueue });
+			float nextTarget = -player.pos;
 
-			timeEnqueue = Time.time;
+			if (nextTarget != targetSyncPosition)
+			{
+				// https://docs.unity3d.com/Manual/TimeFrameManagement.html
+				float timeSendNetworkPackage = Time.unscaledTime - timeEnqueue;
+				//float remainTime = timeIntervalSyncPosition - (timeSendNetworkPackage - timeIntervalSyncPosition);
+				float remainTime = 2 * timeIntervalSyncPosition - timeSendNetworkPackage;
+				float speed = Mathf.Abs(nextTarget - targetSyncPosition) / remainTime;
+
+				Debug.Log($"** queue ** current {targetSyncPosition} next {nextTarget}");
+				Debug.Log($"   network {timeSendNetworkPackage} remain {remainTime}");
+				Debug.Log($"   pos {nextTarget} speed {speed}");
+
+				queueSyncPosition.Enqueue(new PongSyncPosition { pos = nextTarget, speed = speed });
+				isSyncPosition = true;
+			}
+
+			timeEnqueue = Time.unscaledTime;
 		}
 	}
 
@@ -84,69 +105,60 @@ public class PongNetworkPaddle : PaddleController
 		}
 	}
 
-	protected override void Movement()
+	protected override void Update()
 	{
 		if (!IsLocalPlayer)
 		{
-			/*
-			if (isSyncPosition
-				&& this.transform.position.x != targetSyncPosition
-				//&& rb.position.x != targetSyncPotision
-			)
-			{
-				this.SyncPosition(targetSyncPosition);
-			}
-			else
-			{
-				isSyncPosition = false;
-			}
-			*/
-
 			if (isSyncPosition)
 			{
 				if (transform.position.x != targetSyncPosition)
 				{
-					SyncPosition(targetSyncPosition, targetSyncSpeed);
+					InterpolatePosition(targetSyncPosition, targetSyncSpeed);
 				}
 				else
 				{
-					if (queueSyncPosition.Count > 0)
-					{
-						var item = queueSyncPosition.Dequeue();
-						var remainTime = 2 * timeIntervalSyncPosition - item.time;
-						if (remainTime > 0)
-						{
-							targetSyncPosition = item.pos;
-							targetSyncSpeed = Mathf.Abs(targetSyncPosition - transform.position.x) / remainTime;
-						}
-						//Debug.Log($"item pos {item.pos} time {item.time} remain {remainTime} speed {targetSyncSpeed}");
-						isSyncPosition = true;
-					}
-					else
-					{
-						isSyncPosition = false;
-					}
+					SyncPositionToClient();
 				}
 			}
 			return;
 		}
-		base.Movement();
 
-		
-		timeSyncPosition += Time.deltaTime;
+		base.Update();
+
+		SyncPositionToServer();
+	}
+
+	private void SyncPositionToClient()
+	{
+		if (queueSyncPosition.Count > 0)
+		{
+			var item = queueSyncPosition.Dequeue();
+			targetSyncPosition = item.pos;
+			targetSyncSpeed = item.speed;
+
+			Debug.Log($"## Interpolate ## pos {targetSyncPosition} speed {targetSyncSpeed}");
+			isSyncPosition = true;
+		}
+		else
+		{
+			isSyncPosition = false;
+		}
+	}
+
+	private void SyncPositionToServer()
+	{
+		timeSyncPosition += Time.unscaledDeltaTime;
 		if (timeSyncPosition > timeIntervalSyncPosition)
 		{
 			timeSyncPosition = 0;
 			_networkManager.PlayerPosition(transform.position.x);
-			//_networkManager.PlayerPosition(rb.position.x);
 		}
 	}
 
-	private void SyncPosition(float targetPosition, float targetSpeed)
+	private void InterpolatePosition(float targetPosition, float targetSpeed)
 	{
-		//MoveTo(targetSyncPotision);
-
 		var step = targetSpeed * Time.deltaTime;
+		targetPosition = Mathf.Clamp(targetPosition, -limitX, limitX);
 		Vector3 target = new Vector3(targetPosition, transform.position.y, transform.position.z);
 		transform.position = Vector3.MoveTowards(transform.position, target, step);
 	}
@@ -156,5 +168,5 @@ public class PongNetworkPaddle : PaddleController
 public class PongSyncPosition
 {
 	public float pos;
-	public float time;
+	public float speed;
 }
