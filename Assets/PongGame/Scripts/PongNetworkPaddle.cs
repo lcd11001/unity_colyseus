@@ -31,7 +31,7 @@ public class PongNetworkPaddle : PaddleController
 	}
 
 	public bool IsMultiplayerMode => (_networkManager == null || _networkManager.GameRoom == null) ? false : true;
-	public bool IsLocalPlayer => IsMultiplayerMode ?_networkManager.GameRoom.SessionId == PlayerID : false;
+	public bool IsLocalPlayer => IsMultiplayerMode ? _networkManager.GameRoom.SessionId == PlayerID : false;
 	public bool IsOwner(string sectionID) => IsMultiplayerMode ? sectionID == PlayerID : false;
 
 	private void Awake()
@@ -42,7 +42,7 @@ public class PongNetworkPaddle : PaddleController
 	protected override void Start()
 	{
 		base.Start();
-		timeEnqueue = Time.unscaledTime;
+		timeEnqueue = Time.time;
 	}
 
 	private void OnEnable()
@@ -75,20 +75,28 @@ public class PongNetworkPaddle : PaddleController
 			if (nextTarget != targetSyncPosition)
 			{
 				// https://docs.unity3d.com/Manual/TimeFrameManagement.html
-				float timeSendNetworkPackage = Time.unscaledTime - timeEnqueue;
-				//float remainTime = timeIntervalSyncPosition - (timeSendNetworkPackage - timeIntervalSyncPosition);
-				float remainTime = 2 * timeIntervalSyncPosition - timeSendNetworkPackage;
-				float speed = Mathf.Abs(nextTarget - targetSyncPosition) / remainTime;
+				float timeReceivedNetworkPackage = Time.time - timeEnqueue;
+				//float remainTime = timeIntervalSyncPosition - (timeReceivedNetworkPackage - timeIntervalSyncPosition);
+				float remainTime = timeReceivedNetworkPackage > timeIntervalSyncPosition
+					? 2 * timeIntervalSyncPosition - timeReceivedNetworkPackage
+					: timeReceivedNetworkPackage;
 
-				Debug.Log($"** queue ** current {targetSyncPosition} next {nextTarget}");
-				Debug.Log($"   network {timeSendNetworkPackage} remain {remainTime}");
-				Debug.Log($"   pos {nextTarget} speed {speed}");
+				if (remainTime > 0)
+				{
+					float speed = Mathf.Abs(nextTarget - targetSyncPosition) / remainTime;
 
-				queueSyncPosition.Enqueue(new PongSyncPosition { pos = nextTarget, speed = speed });
-				isSyncPosition = true;
+					/*
+					Debug.Log($"** queue ** current {targetSyncPosition} next {nextTarget}");
+					Debug.Log($"   network {timeReceivedNetworkPackage} remain {remainTime}");
+					Debug.Log($"   pos {nextTarget} speed {speed}");
+					*/
+
+					queueSyncPosition.Enqueue(new PongSyncPosition { pos = nextTarget, speed = speed });
+					isSyncPosition = true;
+				}
 			}
 
-			timeEnqueue = Time.unscaledTime;
+			timeEnqueue = Time.time;
 		}
 	}
 
@@ -136,7 +144,10 @@ public class PongNetworkPaddle : PaddleController
 			targetSyncPosition = item.pos;
 			targetSyncSpeed = item.speed;
 
+			/*
 			Debug.Log($"## Interpolate ## pos {targetSyncPosition} speed {targetSyncSpeed}");
+			*/
+
 			isSyncPosition = true;
 		}
 		else
@@ -147,7 +158,7 @@ public class PongNetworkPaddle : PaddleController
 
 	private void SyncPositionToServer()
 	{
-		timeSyncPosition += Time.unscaledDeltaTime;
+		timeSyncPosition += Time.deltaTime;
 		if (timeSyncPosition > timeIntervalSyncPosition)
 		{
 			timeSyncPosition = 0;
