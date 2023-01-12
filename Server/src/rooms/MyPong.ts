@@ -6,13 +6,8 @@ export type PongPlayerPosition = {
     pos: number;
 }
 
-export type PongBallPosition = {
-    x: number,
-    y: number
-}
-
-export type PongBallPhysic = {
-    x: number,
+export type PongBallForce = {
+    x: number;
     y: number
 }
 
@@ -35,18 +30,30 @@ export class MyPong extends Room<MyPongState> {
             this.broadcast(player, { except: client });
         });
 
-        this.onMessage("pong_ball_position", (client, position: PongBallPosition) => {
+        this.onMessage("pong_ball_position", (client, position: PongBall) => {
             const ball = this.state.ball;
             ball.x = position.x;
             ball.y = position.y;
+            ball.tick = position.tick;
 
+            console.log(`server received ball ${position.x}:${position.y} tick ${position.tick} from ${client.sessionId} `)
             this.broadcast(ball, { except: client });
         });
 
         if (this.state.players.size == 2) {
             this.state.ball.x = 0;
             this.state.ball.y = 0;
-            this.broadcast("pong_start_game", this.BallForce());
+
+            let force = this.BallForce();
+            this.clients.forEach((client, index) => {
+                if (index == 1) {
+                    // because player camera always behind him
+                    // so that, we invert force
+                    force.x *= -1;
+                    force.y *= -1;
+                }
+                this.broadcast("pong_start_game", force, { except: client });
+            });
         }
     }
 
@@ -64,8 +71,8 @@ export class MyPong extends Room<MyPongState> {
         return (Math.floor(Math.random() * 2)) * 2 - 1;
     }
 
-    BallForce(): PongBallPhysic {
-        var force: PongBallPhysic = { x: 0, y: 0 };
+    BallForce(): PongBallForce {
+        let force: PongBallForce = { x: 0, y: 0 };
         force.x = 3 * this.RandomDirection();
         force.y = 15 * this.RandomDirection();
         return force;

@@ -21,7 +21,7 @@ public class BallController : MonoBehaviour
 		ResetBall();
 	}
 
-	public void ResetBall()
+	public virtual void ResetBall()
 	{
 		transform.position = Vector3.zero;
 		rb.velocity = Vector3.zero;

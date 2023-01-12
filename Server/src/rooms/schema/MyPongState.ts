@@ -9,6 +9,7 @@ export class PongPlayer extends Schema {
 export class PongBall extends Schema {
 	@type("number") x: number = 0;
 	@type("number") y: number = 0;
+	@type("int32") tick: number = 0;
 }
 
 export class MyPongState extends Schema {

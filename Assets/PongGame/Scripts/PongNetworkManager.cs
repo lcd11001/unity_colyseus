@@ -129,14 +129,14 @@ public class PongNetworkManager : MonoBehaviour
 		}
 	}
 
-	public void PlayerPosition(float x)
+	public void PlayerPosition(float pos)
 	{
-		GameRoom.Send("pong_player_position", new { pos = x });
+		GameRoom.Send("pong_player_position", new { pos });
 	}
 
-	public void BallPosition(Vector2 pos)
+	public void BallPosition(float x, float y, int tick)
 	{
-		GameRoom.Send("pong_ball_position", pos);
+		GameRoom.Send("pong_ball_position", new { x, y, tick });
 	}
 
 	public GameObject CreatePlayer(string sectionId)

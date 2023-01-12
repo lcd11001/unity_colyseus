@@ -13,5 +13,8 @@ public partial class PongBall : Schema {
 
 	[Type(1, "number")]
 	public float y = default(float);
+
+	[Type(2, "int32")]
+	public int tick = default(int);
 }
 
