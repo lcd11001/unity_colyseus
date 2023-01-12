@@ -11,6 +11,11 @@ export type PongBallPosition = {
     y: number
 }
 
+export type PongBallPhysic = {
+    x: number,
+    y: number
+}
+
 export class MyPong extends Room<MyPongState> {
     onCreate(options: any): void | Promise<any> {
         this.setState(new MyPongState());
@@ -27,7 +32,7 @@ export class MyPong extends Room<MyPongState> {
             const player = this.state.players.get(client.sessionId);
             player.pos = position.pos;
 
-            this.broadcast(player, {except: client});
+            this.broadcast(player, { except: client });
         });
 
         this.onMessage("pong_ball_position", (client, position: PongBallPosition) => {
@@ -35,24 +40,34 @@ export class MyPong extends Room<MyPongState> {
             ball.x = position.x;
             ball.y = position.y;
 
-            this.broadcast(ball);
+            this.broadcast(ball, { except: client });
         });
 
-        if (this.state.players.size == 2)
-        {
+        if (this.state.players.size == 2) {
             this.state.ball.x = 0;
             this.state.ball.y = 0;
-            this.broadcast("pong_start_game", this.roomId);
+            this.broadcast("pong_start_game", this.BallForce());
         }
     }
 
     onLeave(client: Client, consented: boolean) {
         this.state.players.delete(client.sessionId);
-        this.broadcast("pong_stop_game", this.roomId);
+        this.broadcast("pong_stop_game");
         console.log(client.sessionId, "left!", "consented", consented);
     }
 
     onDispose() {
         console.log("room", this.roomId, "disposing...");
+    }
+
+    RandomDirection(): number {
+        return (Math.floor(Math.random() * 2)) * 2 - 1;
+    }
+
+    BallForce(): PongBallPhysic {
+        var force: PongBallPhysic = { x: 0, y: 0 };
+        force.x = 3 * this.RandomDirection();
+        force.y = 15 * this.RandomDirection();
+        return force;
     }
 }

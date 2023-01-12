@@ -18,6 +18,7 @@ public class PongNetworkPaddle : PaddleController
 	private Queue<PongSyncPosition> queueSyncPosition = new Queue<PongSyncPosition>();
 	private float timeEnqueue = 0;
 
+	private PongNetworkBall ball;
 	public string PlayerID
 	{
 		get

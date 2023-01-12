@@ -12,6 +12,7 @@ public class PongNetworkManager : MonoBehaviour
 	private static ColyseusRoom<MyPongState> _room = null;
 
 	public static event Action<string, PongPlayer> OnPositionChanged;
+	public static event Action<PongBall> OnBallPosisionChanged;
 
 	public GameObject playerPrefab;
 	public GameObject ballPrefab;
@@ -65,13 +66,17 @@ public class PongNetworkManager : MonoBehaviour
 		{
 			OnPositionChanged?.Invoke(player.id, player);
 		});
-		_room.OnMessage("pong_start_game", (string roomId) =>
+		_room.OnMessage("pong_start_game", (Vector2 force) =>
 		{
-			CreateBall(roomId);
+			CreateBall(_room.Id, force);
 		});
-		_room.OnMessage("pong_stop_game", (string roomId) =>
+		_room.OnMessage("pong_stop_game", (string _) =>
 		{
-			DeleteBall(roomId);
+			DeleteBall(_room.Id);
+		});
+		_room.OnMessage<PongBall>(ball =>
+		{
+			OnBallPosisionChanged?.Invoke(ball);
 		});
 	}
 
@@ -129,6 +134,11 @@ public class PongNetworkManager : MonoBehaviour
 		GameRoom.Send("pong_player_position", new { pos = x });
 	}
 
+	public void BallPosition(Vector2 pos)
+	{
+		GameRoom.Send("pong_ball_position", pos);
+	}
+
 	public GameObject CreatePlayer(string sectionId)
 	{
 		var player = Instantiate(playerPrefab);
@@ -153,17 +163,21 @@ public class PongNetworkManager : MonoBehaviour
 		return false;
 	}
 
-	private GameObject CreateBall(string roomId)
+	private GameObject CreateBall(string roomId, Vector2 force)
 	{
 		var ball = Instantiate(ballPrefab);
 		ball.name = roomId;
+
+		PongNetworkBall networkBall = ball.GetComponent<PongNetworkBall>();
+		networkBall.SetForce(force);
+
 		return ball;
 	}
 
 	private bool DeleteBall(string roomId)
 	{
 		// Fix: sometime, ball is inactive
-		var ball = GameObject.FindObjectOfType<BallController>(true);
+		var ball = GameObject.FindObjectOfType<PongNetworkBall>(true);
 		if (ball != null && ball.gameObject.name == roomId)
 		{
 			Destroy(ball.gameObject);
