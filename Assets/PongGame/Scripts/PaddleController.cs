@@ -1,3 +1,4 @@
+using Cinemachine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,14 +17,36 @@ public class PaddleController : MonoBehaviour
 	private float distanceToCamera;
 	private Avatar avatar;
 	private MeshRenderer mr;
+	private CinemachineBrain cameraBrain;
 
 	private void Start()
 	{
 		rb = GetComponent<Rigidbody>();
 		avatar = GetComponent<Avatar>();
 		mr = GetComponent<MeshRenderer>();
+		cameraBrain = Camera.main.GetComponent<CinemachineBrain>();
+		cameraBrain.m_CameraCutEvent.AddListener((brain) =>
+		{
+			if (brain != null)
+			{
+				if (brain.ActiveVirtualCamera != null)
+				{
+					distanceToCamera = Vector3.Distance(transform.position, brain.ActiveVirtualCamera.VirtualCameraGameObject.transform.position);
+					Debug.Log($"on cut event {brain.ActiveVirtualCamera.Name} {distanceToCamera}");
+				}
+			}
+		});
+		//cameraBrain.m_CameraActivatedEvent.AddListener((active, deactive) =>
+		//{
+		//	if (active != null && deactive != null)
+		//	{
+		//		Debug.Log($"on active event cur {active.Name} prev {deactive.Name}");
+		//	}
+		//});
+
 		distanceToCamera = Vector3.Distance(transform.position, Camera.main.transform.position);
-		mr.material = avatar.IsMe ? player1 : player2;
+		Debug.Log($"start {distanceToCamera}");
+		mr.material = avatar.Possessor.Index == 0 ? player1 : player2;
 	}
 
 	private void Update()
@@ -47,10 +70,10 @@ public class PaddleController : MonoBehaviour
 			{
 				MoveTo(mousePosition.x);
 			}
-			//else
-			//{
-			//	Debug.Log($"mouse {mousePosition.z} vs {rb.gameObject.name} {myPosition.z}");
-			//}
+			else
+			{
+				Debug.Log($"mouse {mousePosition.z} vs {rb.gameObject.name} {myPosition.z}");
+			}
 		}
 
 		if (Input.touchCount > 0)
