@@ -2,24 +2,37 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Avatar = Alteruna.Avatar;
 
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Rigidbody), typeof(Avatar), typeof(MeshRenderer))]
 public class PaddleController : MonoBehaviour
 {
 	[SerializeField] float moveSpeed = 10f;
 	[SerializeField] float limitX = 6.9f;
 	[SerializeField] float touchControlDistance = 5f;
+	[SerializeField] Material player1;
+	[SerializeField] Material player2;
 	private Rigidbody rb;
 	private float distanceToCamera;
+	private Avatar avatar;
+	private MeshRenderer mr;
 
 	private void Start()
 	{
 		rb = GetComponent<Rigidbody>();
+		avatar = GetComponent<Avatar>();
+		mr = GetComponent<MeshRenderer>();
 		distanceToCamera = Vector3.Distance(transform.position, Camera.main.transform.position);
+		mr.material = avatar.IsMe ? player1 : player2;
 	}
 
 	private void Update()
 	{
+		if (!avatar.IsMe)
+		{
+			return;
+		}
+
 		Movement();
 	}
 
