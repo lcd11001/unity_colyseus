@@ -15,8 +15,11 @@ public class PongMultiplayerManager : AttributesSync
 
 	private GameObject ball;
 
-	public UnityEvent<BallController> OnBallCreated = new UnityEvent<BallController>();
-	public UnityEvent<BallController> OnBallDestroyed = new UnityEvent<BallController>();
+	public delegate void OnBallCreated(BallController ball);
+	public delegate void OnBallDestroyed(BallController ball);
+
+	public static OnBallCreated onBallCreated;
+	public static OnBallDestroyed onBallDestroyed;
 
 	private void Start()
 	{
@@ -71,6 +74,7 @@ public class PongMultiplayerManager : AttributesSync
 	public void OnSpawnedObject(User user, GameObject obj)
 	{
 		Debug.Log($"OnSpawnedObject {user.Name} obj {obj.name}");
+		//onBallCreated?.Invoke(obj.GetComponent<BallController>());
 	}
 
 	public void OnDespawnedObject(User user)
@@ -84,7 +88,8 @@ public class PongMultiplayerManager : AttributesSync
 		if (ball == null)
 		{
 			ball = spawner.Spawn(0, spawnBallPosition.position);
-			OnBallCreated?.Invoke(ball.GetComponent<BallController>());
+			Debug.Log($"SpawnBall ball {ball.name}");
+			onBallCreated?.Invoke(ball.GetComponent<BallController>());
 		}
 	}
 
@@ -93,7 +98,8 @@ public class PongMultiplayerManager : AttributesSync
 	{
 		if (ball != null)
 		{
-			OnBallDestroyed?.Invoke(ball.GetComponent<BallController>());
+			Debug.Log($"DespawnBall ball {ball.name}");
+			onBallDestroyed?.Invoke(ball.GetComponent<BallController>());
 			spawner.Despawn(ball);
 			ball = null;
 		}

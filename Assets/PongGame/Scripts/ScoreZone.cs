@@ -28,11 +28,11 @@ public class ScoreZone : MonoBehaviour
 
 			ball.ResetBall();
 
-			if (score >= 7)
-			{
-				ball.gameObject.SetActive(false);
-				gameOverScreen.SetActive(true);
-			}
+			//if (score >= 7)
+			//{
+			//	ball.gameObject.SetActive(false);
+			//	gameOverScreen.SetActive(true);
+			//}
 		}
 	}
 }

@@ -17,7 +17,7 @@ public class BallController : MonoBehaviour
 
 	public void ResetBall()
 	{
-		transform.position = Vector3.zero;
+		transform.position = new Vector3(0, transform.position.y, 0);
 		rb.velocity = Vector3.zero;
 		rb.AddForce(new Vector3(3 * RandomDirection, 0, 15 * RandomDirection) * thrust, ForceMode.Force);
 	}

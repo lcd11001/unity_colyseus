@@ -70,10 +70,10 @@ public class PaddleController : MonoBehaviour
 			{
 				MoveTo(mousePosition.x);
 			}
-			else
-			{
-				Debug.Log($"mouse {mousePosition.z} vs {rb.gameObject.name} {myPosition.z}");
-			}
+			//else
+			//{
+			//	Debug.Log($"mouse {mousePosition.z} vs {rb.gameObject.name} {myPosition.z}");
+			//}
 		}
 
 		if (Input.touchCount > 0)
