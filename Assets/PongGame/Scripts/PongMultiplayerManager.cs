@@ -27,6 +27,14 @@ public class PongMultiplayerManager : AttributesSync
 		camPlayer2.gameObject.SetActive(false);
 	}
 
+	private void Update()
+	{
+		if(Input.GetKeyDown(KeyCode.Escape))
+		{
+			BroadcastRemoteMethod("DespawnBall");
+		}
+	}
+
 	public void OnOtherUserJoined(Multiplayer multiplayer, User user)
 	{
 		Debug.Log($"OnOtherUserJoined {user.Name} count {multiplayer.CurrentRoom.Users.Count}");
@@ -44,7 +52,11 @@ public class PongMultiplayerManager : AttributesSync
 	public void OnOtherUserLeft(Multiplayer multiplayer, User user)
 	{
 		Debug.Log($"OnOtherUserLeft {user.Name}");
-		BroadcastRemoteMethod("DespawnBall");
+		//if (user.Index == 0)
+		//{
+		//	//BroadcastRemoteMethod("DespawnBall");
+		//	DespawnBall();
+		//}
 	}
 
 	public void OnRoomJoined(Multiplayer multiplayer, Room room, User me)
@@ -68,7 +80,7 @@ public class PongMultiplayerManager : AttributesSync
 	{
 		Debug.Log($"OnRoomLeft");
 
-		BroadcastRemoteMethod("DespawnBall");
+		//BroadcastRemoteMethod("DespawnBall");
 	}
 
 	public void OnSpawnedObject(User user, GameObject obj)
