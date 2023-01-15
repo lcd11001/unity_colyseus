@@ -32,9 +32,9 @@ public class PongMultiplayerManager : AttributesSync
 		Debug.Log($"OnOtherUserJoined {user.Name} count {multiplayer.CurrentRoom.Users.Count}");
 		if (multiplayer.CurrentRoom.Users.Count == 2)
 		{
-			Debug.Log("spawn by other");
 			if (user.Index == 0)
 			{
+				Debug.Log($"spawn by other {user.Name}");
 				//BroadcastRemoteMethod("SpawnBall");
 				SpawnBall();
 			}
@@ -55,9 +55,9 @@ public class PongMultiplayerManager : AttributesSync
 
 		if (room.Users.Count == 2)
 		{
-			Debug.Log("spawn by me");
 			if (me.Index == 0)
 			{
+				Debug.Log($"spawn by me {me.Name}");
 				//BroadcastRemoteMethod("SpawnBall");
 				SpawnBall();
 			}
@@ -74,7 +74,7 @@ public class PongMultiplayerManager : AttributesSync
 	public void OnSpawnedObject(User user, GameObject obj)
 	{
 		Debug.Log($"OnSpawnedObject {user.Name} obj {obj.name}");
-		//onBallCreated?.Invoke(obj.GetComponent<BallController>());
+		onBallCreated?.Invoke(obj.GetComponent<BallController>());
 	}
 
 	public void OnDespawnedObject(User user)
@@ -85,17 +85,19 @@ public class PongMultiplayerManager : AttributesSync
 	[SynchronizableMethod]
 	public void SpawnBall()
 	{
+		Debug.Log("SpawnBall calling");
 		if (ball == null)
 		{
 			ball = spawner.Spawn(0, spawnBallPosition.position);
 			Debug.Log($"SpawnBall ball {ball.name}");
-			onBallCreated?.Invoke(ball.GetComponent<BallController>());
+			//onBallCreated?.Invoke(ball.GetComponent<BallController>());
 		}
 	}
 
 	[SynchronizableMethod]
 	public void DespawnBall()
 	{
+		Debug.Log("DespawnBall calling");
 		if (ball != null)
 		{
 			Debug.Log($"DespawnBall ball {ball.name}");
