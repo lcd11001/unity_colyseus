@@ -28,7 +28,10 @@ public class PongNetworkManager : MonoBehaviour
 
 	private async void OnDestroy()
 	{
-		await _room?.Leave(true);
+		if (_room != null)
+		{
+			await _room.Leave(true);
+		}
 		UnregisterEvents();
 	}
 
@@ -44,12 +47,23 @@ public class PongNetworkManager : MonoBehaviour
 
 	public async Task JoinOrCreateGame()
 	{
-		// Will create a new game room if there is no available game rooms in the server.
-		_room = await Client.JoinOrCreate<MyPongState>(_menuManager.GameName);
+		try
+		{
+			// Will create a new game room if there is no available game rooms in the server.
+			_room = await Client.JoinOrCreate<MyPongState>(_menuManager.GameName);
+		}
+		catch(CSAMatchMakeException e)
+		{
+			Debug.Log($"JoinOrCreateGame error {e.Message}");
+		}
 	}
 
 	private void UnregisterEvents()
 	{
+		if (_room == null)
+		{
+			return;
+		}
 		_room.OnLeave -= Room_OnLeave;
 		_room.State.players.OnAdd -= Players_OnAdd;
 		_room.State.players.OnRemove -= Players_OnRemove;
@@ -58,6 +72,10 @@ public class PongNetworkManager : MonoBehaviour
 
 	private void RegisterEvents()
 	{
+		if (_room == null)
+		{
+			return;
+		}
 		_room.OnLeave += Room_OnLeave;
 		_room.State.players.OnAdd += Players_OnAdd;
 		_room.State.players.OnRemove += Players_OnRemove;
