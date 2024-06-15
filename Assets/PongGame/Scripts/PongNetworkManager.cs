@@ -5,6 +5,13 @@ using Colyseus;
 using Colyseus.Schema;
 using UnityEngine;
 
+public enum JOIN_ROOM_STATUS
+{
+	CONNECTING = -1,
+	FAILED = 0,
+	SUCCESS = 1,
+}
+
 public class PongNetworkManager : MonoBehaviour
 {
 	private static ColyseusClient _client = null;
@@ -13,6 +20,7 @@ public class PongNetworkManager : MonoBehaviour
 
 	public static event Action<string, PongPlayer> OnPositionChanged;
 	public static event Action<PongBall> OnBallPosisionChanged;
+	public static event Action<JOIN_ROOM_STATUS> OnJoinRoomStatus;
 
 	public GameObject playerPrefab;
 	public GameObject ballPrefab;
@@ -39,7 +47,12 @@ public class PongNetworkManager : MonoBehaviour
 	{
 		if (_menuManager == null)
 		{
-			_menuManager = gameObject.AddComponent<PongMenuManager>();
+			_menuManager = FindObjectOfType<PongMenuManager>();
+
+			if (_menuManager == null)
+			{
+				_menuManager = gameObject.AddComponent<PongMenuManager>();
+			}
 		}
 
 		_client = new ColyseusClient(_menuManager.HostAddress);
@@ -49,12 +62,18 @@ public class PongNetworkManager : MonoBehaviour
 	{
 		try
 		{
+			OnJoinRoomStatus?.Invoke(JOIN_ROOM_STATUS.CONNECTING);
+
 			// Will create a new game room if there is no available game rooms in the server.
 			_room = await Client.JoinOrCreate<MyPongState>(_menuManager.GameName);
+
+			OnJoinRoomStatus?.Invoke(JOIN_ROOM_STATUS.SUCCESS);
 		}
-		catch(CSAMatchMakeException e)
+		catch (Exception e)
 		{
 			Debug.Log($"JoinOrCreateGame error {e.Message}");
+
+			OnJoinRoomStatus?.Invoke(JOIN_ROOM_STATUS.FAILED);
 		}
 	}
 
@@ -205,5 +224,5 @@ public class PongNetworkManager : MonoBehaviour
 		return false;
 	}
 
-	
+
 }
