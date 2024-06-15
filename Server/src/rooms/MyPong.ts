@@ -68,7 +68,8 @@ export class MyPong extends Room<MyPongState> {
     }
 
     RandomDirection(): number {
-        return (Math.floor(Math.random() * 2)) * 2 - 1;
+        // return (Math.floor(Math.random() * 2)) * 2 - 1;
+        return Math.random() < 0.5 ? -1 : 1;
     }
 
     BallForce(): PongBallForce {

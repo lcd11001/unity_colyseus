@@ -33,5 +33,6 @@ public class BallController : MonoBehaviour
 		this.rbForce = new Vector3(force.x * RandomDirection, 0, force.y * RandomDirection) * thrust;
 	}
 
-	private int RandomDirection => Random.Range(0, 2) * 2 - 1;
+	//private int RandomDirection => Random.Range(0, 2) * 2 - 1;
+	private int RandomDirection => Random.Range(0.0f, 1.0f) < 0.5f ? -1 : 1;
 }
