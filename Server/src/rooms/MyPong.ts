@@ -17,10 +17,11 @@ export class MyPong extends Room<MyPongState> {
     }
 
     onJoin(client: Client, options?: any, auth?: any): void | Promise<any> {
-        console.log(`Pong ${client.sessionId} joined`);
+        console.log(`Pong ${client.sessionId} joined with options ${JSON.stringify(options, null, 2)}`);
 
         const newPlayer = new PongPlayer();
         newPlayer.id = client.sessionId;
+        newPlayer.ai = options?.ai ?? false;
         this.state.players.set(client.sessionId, newPlayer);
 
         this.onMessage("pong_player_position", (client, position: PongPlayerPosition) => {

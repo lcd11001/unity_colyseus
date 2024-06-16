@@ -5,20 +5,20 @@ using UnityEngine;
 [RequireComponent(typeof(PaddleController))]
 public class AIController : MonoBehaviour
 {
-	[SerializeField] private BallController ball;
+	[SerializeField] protected BallController ball;
 	[SerializeField] private float timeInterval = 1.0f;
 
 	private float time = 0;
 	private PaddleController paddle;
 	private float targetPositionX;
 
-	private void Start()
+	public virtual void Start()
 	{
 		paddle = GetComponent<PaddleController>();
 	}
 
 	void Update()
-    {
+	{
 		time += Time.deltaTime;
 		if (time > timeInterval)
 		{

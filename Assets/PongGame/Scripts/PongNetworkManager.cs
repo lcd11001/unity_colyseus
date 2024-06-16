@@ -20,9 +20,11 @@ public class PongNetworkManager : MonoBehaviour
 
 	public static event Action<string, PongPlayer> OnPositionChanged;
 	public static event Action<PongBall> OnBallPosisionChanged;
+	public static event Action<PongNetworkBall> OnBallCreated;
 	public static event Action<JOIN_ROOM_STATUS> OnJoinRoomStatus;
 
 	public GameObject playerPrefab;
+	public GameObject aiPrefab;
 	public GameObject ballPrefab;
 	public Transform spawnPlayerPosition;
 	public Transform spawnOpponentPosition;
@@ -45,6 +47,19 @@ public class PongNetworkManager : MonoBehaviour
 
 	public void Initialize()
 	{
+		InitClient();
+	}
+
+	private void InitClient()
+	{
+		if (_client == null)
+		{
+			_client = new ColyseusClient(Menu.HostAddress);
+		}
+	}
+
+	private void InitMenu()
+	{
 		if (_menuManager == null)
 		{
 			_menuManager = FindObjectOfType<PongMenuManager>();
@@ -54,9 +69,8 @@ public class PongNetworkManager : MonoBehaviour
 				_menuManager = gameObject.AddComponent<PongMenuManager>();
 			}
 		}
-
-		_client = new ColyseusClient(_menuManager.HostAddress);
 	}
+
 
 	public async Task JoinOrCreateGame()
 	{
@@ -65,7 +79,11 @@ public class PongNetworkManager : MonoBehaviour
 			OnJoinRoomStatus?.Invoke(JOIN_ROOM_STATUS.CONNECTING);
 
 			// Will create a new game room if there is no available game rooms in the server.
-			_room = await Client.JoinOrCreate<MyPongState>(_menuManager.GameName);
+			Dictionary<string, object> options = new Dictionary<string, object>
+			{
+				{ "isAI", Menu.IsAI }
+			};
+			_room = await Client.JoinOrCreate<MyPongState>(Menu.GameName, options);
 
 			OnJoinRoomStatus?.Invoke(JOIN_ROOM_STATUS.SUCCESS);
 		}
@@ -138,7 +156,7 @@ public class PongNetworkManager : MonoBehaviour
 	private void Players_OnAdd(string key, PongPlayer value)
 	{
 		Debug.Log($"Players_OnAdd {key} player pos {value.pos}");
-		var player = CreatePlayer(key);
+		var player = CreatePlayer(key, value.ai);
 	}
 
 	public ColyseusClient Client
@@ -146,11 +164,23 @@ public class PongNetworkManager : MonoBehaviour
 		get
 		{
 			// Initialize Colyseus client, if the client has not been initiated yet or input values from the Menu have been changed.
-			if (_client == null || !_client.Endpoint.Uri.ToString().Contains(_menuManager.HostAddress))
+			if (_client == null || !_client.Endpoint.Uri.ToString().Contains(Menu.HostAddress))
 			{
 				Initialize();
 			}
 			return _client;
+		}
+	}
+
+	public PongMenuManager Menu
+	{
+		get
+		{
+			if (_menuManager == null)
+			{
+				InitMenu();
+			}
+			return _menuManager;
 		}
 	}
 
@@ -176,9 +206,9 @@ public class PongNetworkManager : MonoBehaviour
 		GameRoom.Send("pong_ball_position", new { x, y, tick });
 	}
 
-	public GameObject CreatePlayer(string sectionId)
+	public GameObject CreatePlayer(string sectionId, bool isAI)
 	{
-		var player = Instantiate(playerPrefab);
+		var player = isAI ? Instantiate(aiPrefab) : Instantiate(playerPrefab);
 		player.name = sectionId;
 
 		PongNetworkPaddle paddle = player.GetComponent<PongNetworkPaddle>();
@@ -208,6 +238,8 @@ public class PongNetworkManager : MonoBehaviour
 		PongNetworkBall networkBall = ball.GetComponent<PongNetworkBall>();
 		networkBall.SetForce(force);
 
+		OnBallCreated?.Invoke(networkBall);
+
 		return ball;
 	}
 
@@ -218,6 +250,9 @@ public class PongNetworkManager : MonoBehaviour
 		if (ball != null && ball.gameObject.name == roomId)
 		{
 			Destroy(ball.gameObject);
+
+			OnBallCreated?.Invoke(null);
+
 			return true;
 		}
 		Debug.LogError($"can not destroy ball {roomId}");
