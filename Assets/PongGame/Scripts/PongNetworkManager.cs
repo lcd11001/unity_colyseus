@@ -155,7 +155,7 @@ public class PongNetworkManager : MonoBehaviour
 
 	private void Players_OnAdd(string key, PongPlayer value)
 	{
-		Debug.Log($"Players_OnAdd {key} player pos {value.pos}");
+		Debug.Log($"Players_OnAdd {key} player pos {value.pos} ai {value.ai}");
 		var player = CreatePlayer(key, value.ai);
 	}
 

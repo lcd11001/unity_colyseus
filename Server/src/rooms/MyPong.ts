@@ -21,7 +21,7 @@ export class MyPong extends Room<MyPongState> {
 
         const newPlayer = new PongPlayer();
         newPlayer.id = client.sessionId;
-        newPlayer.ai = options?.ai ?? false;
+        newPlayer.ai = options?.isAI ?? false;
         this.state.players.set(client.sessionId, newPlayer);
 
         this.onMessage("pong_player_position", (client, position: PongPlayerPosition) => {

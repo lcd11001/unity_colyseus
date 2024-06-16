@@ -17,7 +17,7 @@ public class AIController : MonoBehaviour
 		paddle = GetComponent<PaddleController>();
 	}
 
-	void Update()
+	protected virtual void Update()
 	{
 		time += Time.deltaTime;
 		if (time > timeInterval)
