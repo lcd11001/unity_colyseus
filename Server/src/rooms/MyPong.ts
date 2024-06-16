@@ -1,6 +1,6 @@
 import { Room, Client } from "colyseus";
 import { Player } from "./schema/MyRoomState";
-import { MyPongState, PongBall, PongPlayer } from "./schema/MyPongState";
+import { MyPongState, PongBall, PongInitBall, PongPlayer } from "./schema/MyPongState";
 
 export type PongPlayerPosition = {
     pos: number;
@@ -53,7 +53,12 @@ export class MyPong extends Room<MyPongState> {
                     force.x *= -1;
                     force.y *= -1;
                 }
-                this.broadcast("pong_start_game", force, { except: client });
+                let initBall = new PongInitBall();
+                initBall.x = force.x;
+                initBall.y = force.y;
+                initBall.hostID = this.clients[0].id;
+                // this.broadcast("pong_start_game", force, { except: client });
+                this.broadcast(initBall, { except: client });
             });
         }
     }

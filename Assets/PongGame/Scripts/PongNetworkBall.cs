@@ -7,6 +7,7 @@ public class PongNetworkBall : BallController
 {
 	[SerializeField] private float maxDistance = 0.2f;
 	[SerializeField] private float timeIntervalSyncPosition = 1;
+	[SerializeField] private string hostID = "";
 	private float timeSyncPosition = 0;
 	private float timeCheckPosition = 0;
 	private PongNetworkManager _networkManager;
@@ -73,10 +74,14 @@ public class PongNetworkBall : BallController
 		this.rbForce = new Vector3(force.x, 0, force.y) * thrust;
 	}
 
+	public void SetHostID(string hostID)
+	{
+		this.hostID = hostID;
+	}
+
 	private void Update()
 	{
 		SyncPositionToServer();
-
 		CheckPosition();
 	}
 
@@ -91,9 +96,10 @@ public class PongNetworkBall : BallController
 			{
 				if (myQueue.TryGetValue(checkIndex, out myBall))
 				{
-					if (Vector2.Distance(otherBall, myBall) > maxDistance)
+					Vector2 targetBall = -otherBall;
+					if (Vector2.Distance(targetBall, myBall) > maxDistance)
 					{
-						CorrectPosition(otherBall, myBall);
+						CorrectPosition(targetBall, myBall);
 					}
 
 					otherQueue.Remove(checkIndex);
@@ -107,7 +113,13 @@ public class PongNetworkBall : BallController
 
 	private void CorrectPosition(Vector2 otherBall, Vector2 myBall)
 	{
-		Debug.Log($"CorrectPosition {otherBall} vs {myBall}");
+		// Calculate the interpolated position
+		Vector2 interpolatedPosition = Vector2.Lerp(myBall, otherBall, 0.5f); // Adjust the 0.5f as needed for smoother or quicker correction
+
+		// Apply the interpolated position to the ball
+		transform.position = new Vector3(interpolatedPosition.x, transform.position.y, interpolatedPosition.y);
+
+		Debug.Log($"CorrectPosition {otherBall} vs {myBall} to {interpolatedPosition}");
 	}
 
 	private void SyncPositionToServer()
@@ -117,9 +129,21 @@ public class PongNetworkBall : BallController
 		{
 			timeSyncPosition = 0;
 			Vector2 pos = new Vector2(transform.position.x, transform.position.z);
-			_networkManager.BallPosition(pos.x, pos.y, tick);
+			if (IsOwner)
+			{
+				_networkManager.BallPosition(pos.x, pos.y, tick);
+			}
 			myQueue.Add(tick, pos);
 			tick++;
+		}
+	}
+
+	private bool IsOwner
+	{
+		get
+		{
+			string localPlayerID = _networkManager.GetLocalPlayerID();
+			return localPlayerID == hostID;
 		}
 	}
 }

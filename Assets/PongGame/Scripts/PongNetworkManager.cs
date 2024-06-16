@@ -121,9 +121,13 @@ public class PongNetworkManager : MonoBehaviour
 		{
 			OnPositionChanged?.Invoke(player.id, player);
 		});
-		_room.OnMessage("pong_start_game", (Vector2 force) =>
+		//_room.OnMessage("pong_start_game", (PongInitBall info) =>
+		//{
+		//	CreateBall(_room.Id, info);
+		//});
+		_room.OnMessage<PongInitBall>(info =>
 		{
-			CreateBall(_room.Id, force);
+			CreateBall(_room.Id, info);
 		});
 		_room.OnMessage("pong_stop_game", (string _) =>
 		{
@@ -230,13 +234,15 @@ public class PongNetworkManager : MonoBehaviour
 		return false;
 	}
 
-	private GameObject CreateBall(string roomId, Vector2 force)
+	private GameObject CreateBall(string roomId, PongInitBall info)
 	{
+		Vector2 force = new Vector2(info.x, info.y);
 		var ball = Instantiate(ballPrefab);
 		ball.name = roomId;
 
 		PongNetworkBall networkBall = ball.GetComponent<PongNetworkBall>();
 		networkBall.SetForce(force);
+		networkBall.SetHostID(info.hostID);
 
 		OnBallCreated?.Invoke(networkBall);
 
@@ -259,5 +265,16 @@ public class PongNetworkManager : MonoBehaviour
 		return false;
 	}
 
-
+	public string GetLocalPlayerID()
+	{
+		if (_room != null)
+		{
+			return _room.SessionId;
+		}
+		else
+		{
+			Debug.LogError("Room is not initialized. Unable to get local player ID");
+			return string.Empty;
+		}
+	}
 }

@@ -13,6 +13,12 @@ export class PongBall extends Schema {
 	@type("int32") tick: number = 0;
 }
 
+export class PongInitBall extends Schema {
+	@type("number") x: number = 0;
+	@type("number") y: number = 0;
+	@type("string") hostID: string = "";
+}
+
 export class MyPongState extends Schema {
 	@type({ map: PongPlayer })
 	players: MapSchema<PongPlayer> = new MapSchema<PongPlayer>();
