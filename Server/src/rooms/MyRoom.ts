@@ -6,15 +6,28 @@ export type Position = {
   y: number
 }
 
-export class MyRoom extends Room<MyRoomState> {
+export class MyRoom extends Room<MyRoomState>
+{
 
-  onCreate (options: any) {
+  onCreate(options: any)
+  {
     this.setState(new MyRoomState());
+
+    // Listen to position changes from the client.
+    this.onMessage("position", (client, position: Position) =>
+    {
+      const player: Player = this.state.players.get(client.sessionId);
+      player.x = position.x;
+      player.y = position.y;
+
+      this.broadcast(player);
+    });
   }
 
-  onJoin (client: Client, options: any) {
+  onJoin(client: Client, options: any)
+  {
     console.log(client.sessionId, "joined!");
-    
+
     const newPlayer = new Player();
     newPlayer.id = client.sessionId;
     this.state.players.set(client.sessionId, newPlayer);
@@ -22,23 +35,16 @@ export class MyRoom extends Room<MyRoomState> {
     // Send welcome message to the client.
     client.send("welcomeMessage", "Welcome to Colyseus!");
     client.send("sessionId", client.sessionId);
-
-    // Listen to position changes from the client.
-    this.onMessage("position", (client, position: Position) => {
-      const player = this.state.players.get(client.sessionId);
-      player.x = position.x;
-      player.y = position.y;
-      
-      this.broadcast(player);
-    });
   }
 
-  onLeave (client: Client, consented: boolean) {
+  onLeave(client: Client, consented: boolean)
+  {
     this.state.players.delete(client.sessionId);
     console.log(client.sessionId, "left!", "consented", consented);
   }
 
-  onDispose() {
+  onDispose()
+  {
     console.log("room", this.roomId, "disposing...");
   }
 

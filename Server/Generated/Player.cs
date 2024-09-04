@@ -11,19 +11,19 @@ using Action = System.Action;
 using UnityEngine.Scripting;
 #endif
 
-public partial class PongPlayer : Schema {
+public partial class Player : Schema {
 #if UNITY_5_3_OR_NEWER
 [Preserve] 
 #endif
-public PongPlayer() { }
+public Player() { }
 	[Type(0, "string")]
 	public string id = default(string);
 
 	[Type(1, "number")]
-	public float pos = default(float);
+	public float x = default(float);
 
-	[Type(2, "boolean")]
-	public bool ai = default(bool);
+	[Type(2, "number")]
+	public float y = default(float);
 
 	/*
 	 * Support for individual property change callbacks below...
@@ -41,35 +41,35 @@ public PongPlayer() { }
 		};
 	}
 
-	protected event PropertyChangeHandler<float> __posChange;
-	public Action OnPosChange(PropertyChangeHandler<float> __handler, bool __immediate = true) {
+	protected event PropertyChangeHandler<float> __xChange;
+	public Action OnXChange(PropertyChangeHandler<float> __handler, bool __immediate = true) {
 		if (__callbacks == null) { __callbacks = new SchemaCallbacks(); }
-		__callbacks.AddPropertyCallback(nameof(this.pos));
-		__posChange += __handler;
-		if (__immediate && this.pos != default(float)) { __handler(this.pos, default(float)); }
+		__callbacks.AddPropertyCallback(nameof(this.x));
+		__xChange += __handler;
+		if (__immediate && this.x != default(float)) { __handler(this.x, default(float)); }
 		return () => {
-			__callbacks.RemovePropertyCallback(nameof(pos));
-			__posChange -= __handler;
+			__callbacks.RemovePropertyCallback(nameof(x));
+			__xChange -= __handler;
 		};
 	}
 
-	protected event PropertyChangeHandler<bool> __aiChange;
-	public Action OnAiChange(PropertyChangeHandler<bool> __handler, bool __immediate = true) {
+	protected event PropertyChangeHandler<float> __yChange;
+	public Action OnYChange(PropertyChangeHandler<float> __handler, bool __immediate = true) {
 		if (__callbacks == null) { __callbacks = new SchemaCallbacks(); }
-		__callbacks.AddPropertyCallback(nameof(this.ai));
-		__aiChange += __handler;
-		if (__immediate && this.ai != default(bool)) { __handler(this.ai, default(bool)); }
+		__callbacks.AddPropertyCallback(nameof(this.y));
+		__yChange += __handler;
+		if (__immediate && this.y != default(float)) { __handler(this.y, default(float)); }
 		return () => {
-			__callbacks.RemovePropertyCallback(nameof(ai));
-			__aiChange -= __handler;
+			__callbacks.RemovePropertyCallback(nameof(y));
+			__yChange -= __handler;
 		};
 	}
 
 	protected override void TriggerFieldChange(DataChange change) {
 		switch (change.Field) {
 			case nameof(id): __idChange?.Invoke((string) change.Value, (string) change.PreviousValue); break;
-			case nameof(pos): __posChange?.Invoke((float) change.Value, (float) change.PreviousValue); break;
-			case nameof(ai): __aiChange?.Invoke((bool) change.Value, (bool) change.PreviousValue); break;
+			case nameof(x): __xChange?.Invoke((float) change.Value, (float) change.PreviousValue); break;
+			case nameof(y): __yChange?.Invoke((float) change.Value, (float) change.PreviousValue); break;
 			default: break;
 		}
 	}
