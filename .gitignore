@@ -82,3 +82,4 @@ sysinfo.txt
 crashlytics-build.properties
 # Logs
 /Logs/
+Server/Generated/
