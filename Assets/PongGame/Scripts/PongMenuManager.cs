@@ -4,54 +4,38 @@ using UnityEngine.SceneManagement;
 
 public class PongMenuManager : MonoBehaviour
 {
-	[SerializeField]
-	private string gameName = null;
-	[SerializeField]
-	private string hostname = null;
-	[SerializeField]
-	private string port = null;
-	[SerializeField]
-	private bool secureProtocol = false;
-	[SerializeField]
-	private bool isAI = false;
+	public enum FIELD
+	{
+		GAME_NAME,
+		HOST_NAME,
+		PORT,
+		IS_AI,
+		IS_SECURE_PROTOCOL,
+	}
 
 	private static PongMenuManager _instance = null;
 
-	public string GameName
-	{
-		get => string.IsNullOrEmpty(gameName) ? "pong_room" : gameName;
-		set => gameName = value;
-	}
+	[field: SerializeField]
+	public string GameName { get; set; } = "pong_room";
 
-	public string HostName
-	{
-		get => string.IsNullOrEmpty(hostname) ? "localhost" : hostname;
-		set => hostname = value;
-	}
+	[field: SerializeField]
+	public string HostName { get; set; } = "localhost";
 
-	public string Port
-	{
-		get => string.IsNullOrEmpty(port) ? "2567" : port;
-		set => port = value;
-	}
+	[field: SerializeField]
+	public string Port { get; set; } = "2567";
 
 	public string Protocol
 	{
-		get => secureProtocol ? "wss" : "ws";
-		set => secureProtocol = !secureProtocol;
+		get => IsSecureProtocol ? "wss" : "ws";
 	}
 
-	public bool IsAI
-	{
-		get => isAI;
-		set => isAI = value;
-	}
+	[field: SerializeField]
+	public bool IsAI { get; set; } = false;
 
-	public bool IsSecureProtocol
-	{
-		get => secureProtocol;
-		set => secureProtocol = value;
-	}
+
+	[field: SerializeField]
+	public bool IsSecureProtocol { get; set; } = false;
+
 
 	public string HostAddress => $"{Protocol}://{HostName}:{Port}";
 
@@ -71,5 +55,24 @@ public class PongMenuManager : MonoBehaviour
 	public void Play()
 	{
 		SceneManager.LoadScene("PongMultiPlayer", LoadSceneMode.Single);
+	}
+
+	public string GetField(FIELD field)
+	{
+		switch (field)
+		{
+			case FIELD.GAME_NAME:
+				return GameName;
+			case FIELD.HOST_NAME:
+				return HostName;
+			case FIELD.PORT:
+				return Port;
+			case FIELD.IS_AI:
+				return IsAI.ToString();
+			case FIELD.IS_SECURE_PROTOCOL:
+				return IsSecureProtocol.ToString();
+			default:
+				throw new ArgumentOutOfRangeException(nameof(field), field, null);
+		}
 	}
 }
