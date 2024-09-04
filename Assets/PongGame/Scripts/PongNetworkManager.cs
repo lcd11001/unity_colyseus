@@ -30,6 +30,9 @@ public class PongNetworkManager : MonoBehaviour
 	public Transform spawnOpponentPosition;
 	public Transform spawnBallPosition;
 
+	private Action detachOnAdd;
+	private Action detachOnRemove;
+
 	private async void Start()
 	{
 		await this.JoinOrCreateGame();
@@ -102,8 +105,14 @@ public class PongNetworkManager : MonoBehaviour
 			return;
 		}
 		_room.OnLeave -= Room_OnLeave;
-		_room.State.players.OnAdd -= Players_OnAdd;
-		_room.State.players.OnRemove -= Players_OnRemove;
+		if (this.detachOnAdd != null)
+		{
+			this.detachOnAdd();
+		}
+		if (this.detachOnRemove != null)
+		{
+			this.detachOnRemove();
+		}
 		//_room.State.OnChange -= State_OnChange;
 	}
 
@@ -114,8 +123,8 @@ public class PongNetworkManager : MonoBehaviour
 			return;
 		}
 		_room.OnLeave += Room_OnLeave;
-		_room.State.players.OnAdd += Players_OnAdd;
-		_room.State.players.OnRemove += Players_OnRemove;
+		this.detachOnAdd = _room.State.players.OnAdd(Players_OnAdd);
+		this.detachOnRemove = _room.State.players.OnRemove(Players_OnRemove);
 		//_room.State.OnChange += State_OnChange;
 		_room.OnMessage<PongPlayer>(player =>
 		{
@@ -127,11 +136,11 @@ public class PongNetworkManager : MonoBehaviour
 		//});
 		_room.OnMessage<PongInitBall>(info =>
 		{
-			CreateBall(_room.Id, info);
+			CreateBall(_room.RoomId, info);
 		});
 		_room.OnMessage("pong_stop_game", (string _) =>
 		{
-			DeleteBall(_room.Id);
+			DeleteBall(_room.RoomId);
 		});
 		_room.OnMessage<PongBall>(ball =>
 		{
@@ -168,7 +177,7 @@ public class PongNetworkManager : MonoBehaviour
 		get
 		{
 			// Initialize Colyseus client, if the client has not been initiated yet or input values from the Menu have been changed.
-			if (_client == null || !_client.Endpoint.Uri.ToString().Contains(Menu.HostAddress))
+			if (_client == null || !_client.Settings.WebSocketEndpoint.Contains(Menu.HostAddress))
 			{
 				Initialize();
 			}
